@@ -1,8 +1,5 @@
 // Requirements
-// - Users can type in an address and a NORAD to receive information on the next time that satellite will be visible
 // - Your final website is responsive (looks good on mobile and desktop)
-
-// Error handling
 
 // --- Document Elements ---
 const elemSearch = document.querySelector('#search')
@@ -51,7 +48,6 @@ function getFlybyURL(latt, long, id) {
 
 // --- Document Events ---
 
-// SWITCHING TO ASYNC
 elemSearch.addEventListener('click', async () => {
 
     // Hide old data
