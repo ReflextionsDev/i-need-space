@@ -51,45 +51,48 @@ function getFlybyURL(latt, long, id) {
 
 // --- Document Events ---
 
-// .then
-elemSearch.addEventListener('click', () => {
+// SWITCHING TO ASYNC
+elemSearch.addEventListener('click', async () => {
 
+    // Hide old data
     elemPassSection.style.display = "none"
 
+    // User input
     let key = elemKey.value
     loc = elemAddress.value
     id = elemSatelite.value
 
-    let mapboxURL = getMapboxURL(key, loc)
+    try {
 
-    fetch(mapboxURL)
-        .then((webData) => {
-            if (debugLog) { console.log(webData) }
-            return webData.json()
-        })
-        .then((data) => {
+        // Mapbox request
+        let mapboxURL = getMapboxURL(key, loc)
 
-            if (debugLog) { console.log(data) }
-            const long = data.features[0].center[0]
-            const latt = data.features[0].center[1]
-            const flybyURL = getFlybyURL(latt, long, id)
+        const mapboxResponse = await fetch(mapboxURL)
+        if (debugLog) { console.log(mapboxResponse) }
 
-            fetch(flybyURL)
-                .then((webData) => {
-                    if (debugLog) { console.log(webData) }
-                    return webData.json()
-                })
-                .then((data) => {
-                    if (debugLog) { console.log(data) }
-                    const rise = data[0].rise.utc_datetime
-                    const culm = data[0].culmination.utc_datetime
-                    const set = data[0].set.utc_datetime
-                    showPass(rise, culm, set)
-                })
-        })
-        .catch(() => {
-            alert("There was an error with your request.")
-        })
+        const mapboxData = await mapboxResponse.json()
+        if (debugLog) { console.log(mapboxData) }
+
+        const long = mapboxData.features[0].center[0]
+        const latt = mapboxData.features[0].center[1]
+        const flybyURL = getFlybyURL(latt, long, id)
+
+        // Flyby request
+        let flybyResponse = await fetch(flybyURL)
+        if (debugLog) { console.log(flybyResponse) }
+
+        let flybyData = await flybyResponse.json()
+        if (debugLog) { console.log(flybyData) }
+
+        // Display data
+        const rise = flybyData[0].rise.utc_datetime
+        const culm = flybyData[0].culmination.utc_datetime
+        const set = flybyData[0].set.utc_datetime
+        showPass(rise, culm, set)
+    } catch {
+        alert('There was an error with your request.')
+    }
+
 })
 
 function showPass(rise, culm, set) {
